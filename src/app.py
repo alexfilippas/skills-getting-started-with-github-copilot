@@ -23,6 +23,42 @@ app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
 activities = {
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
+        "Basketball Team": {
+            "description": "Team practices and competitive basketball games",
+            "schedule": "Mondays and Wednesdays, 3:30 PM - 5:00 PM",
+            "max_participants": 15,
+            "participants": ["liam@mergington.edu", "noah@mergington.edu"]
+        },
+        "Swimming Club": {
+            "description": "Swim training focused on endurance and technique",
+            "schedule": "Tuesdays and Thursdays, 4:00 PM - 5:30 PM",
+            "max_participants": 18,
+            "participants": ["ava@mergington.edu", "mia@mergington.edu"]
+        },
+        "Drama Club": {
+            "description": "Acting workshops and school theater performances",
+            "schedule": "Wednesdays, 3:30 PM - 5:30 PM",
+            "max_participants": 20,
+            "participants": ["isabella@mergington.edu", "amelia@mergington.edu"]
+        },
+        "Painting Studio": {
+            "description": "Creative painting sessions using mixed media",
+            "schedule": "Fridays, 3:30 PM - 5:00 PM",
+            "max_participants": 16,
+            "participants": ["harper@mergington.edu", "evelyn@mergington.edu"]
+        },
+        "Debate Society": {
+            "description": "Structured debates to build public speaking and reasoning skills",
+            "schedule": "Thursdays, 3:30 PM - 5:00 PM",
+            "max_participants": 14,
+            "participants": ["james@mergington.edu", "benjamin@mergington.edu"]
+        },
+        "Math Olympiad Prep": {
+            "description": "Advanced problem-solving practice for math competitions",
+            "schedule": "Tuesdays, 3:30 PM - 5:00 PM",
+            "max_participants": 12,
+            "participants": ["charlotte@mergington.edu", "elijah@mergington.edu"]
+        },
         "schedule": "Fridays, 3:30 PM - 5:00 PM",
         "max_participants": 12,
         "participants": ["michael@mergington.edu", "daniel@mergington.edu"]
@@ -62,6 +98,25 @@ def signup_for_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
+    # Validate student is not already signed up
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student already signed up")
+
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.delete("/activities/{activity_name}/participants")
+def unregister_from_activity(activity_name: str, email: str):
+    """Unregister a student from an activity"""
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    activity = activities[activity_name]
+
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=404, detail="Participant not found in this activity")
+
+    activity["participants"].remove(email)
+    return {"message": f"Unregistered {email} from {activity_name}"}
